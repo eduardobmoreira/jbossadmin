@@ -1,12 +1,14 @@
-# AGENTS.md - Contrato de Trabalho para GitHub Copilot
+# AGENTS.md - Employment Contract for GitHub Copilot
 
-## ✅1. Stack and project context
+Language: english.
+
+## ✅ Stack and project context
 
 DESKTOP INTERFACE with **Java 25 + Swing**.
 Data base: SQLite.
 Package manager: `maven`.
 
-## ✅2. Comandos essenciais
+## ✅ Essencial commands
 
 ```bash
 # Development
@@ -14,7 +16,13 @@ mvn clean              # It cleans the packages
 mvn install            # It installs the packages
 ```
 
-## ✅3. Estrutura de pastas relevante
+## ✅ Maven folder
+
+```
+C:\Users\casto\apache-maven-3.9.16
+```
+
+## ✅ Relevant folder structure
 
 ```
 src/
@@ -24,11 +32,11 @@ target/
   classes/      ← Bytecodes of all system classes.
 ```
 
-## ✅4. Absolute restrictions — never do
+## ✅ Absolute restrictions — never do
 
 - **Never** commit `.env`, `.env.local` or any files inside `secrets/`
 
-## ✅5.  Padrão de commits
+## ✅ Commits pattern
 
 We use Conventional Commits. Mandatory format:
 
@@ -46,7 +54,7 @@ fix(jobs): prevent duplicate email dispatch on retry
 refactor(repositories): extract pagination helper
 ```
 
-## ✅6. Tests
+## ✅ Tests
 
 Framework: **JUnit + Mockito**. Tests ar located in `src/tests/java`.
 File name: `<module>Test.java`.

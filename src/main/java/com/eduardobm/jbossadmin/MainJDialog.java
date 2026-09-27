@@ -1,9 +1,18 @@
 package com.eduardobm.jbossadmin;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -21,6 +30,9 @@ public class MainJDialog extends javax.swing.JDialog {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainJDialog.class.getName());
     private static final Color VALID_JBOSS_PATH_COLOR = new Color(0, 153, 0);
     private static final Color INVALID_JBOSS_PATH_COLOR = Color.RED;
+    private static final Color VALID_ARTIFACT_PATH_COLOR = new Color(0, 153, 0);
+    private static final Color INVALID_ARTIFACT_PATH_COLOR = Color.RED;
+    private static final Set<String> ACCEPTED_ARTIFACT_EXTENSIONS = Set.of("war", "ear", "jar");
 
     /**
      * Creates new form MainJDialog
@@ -29,6 +41,8 @@ public class MainJDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         configureJbossPathValidation();
+        configureArtifactField(artifactJTextField1, deployJButton1, removeJButton1, true);
+        removeJButton1.setEnabled(true);
     }
 
     /**
@@ -60,6 +74,10 @@ public class MainJDialog extends javax.swing.JDialog {
         jBossPathJTextField.setText("C:/...");
         jBossPathJTextField.addActionListener(this::jBossPathJTextFieldActionPerformed);
 
+        artifactRowsJPanel = new javax.swing.JPanel();
+        artifactRowsJPanel.setLayout(new BoxLayout(artifactRowsJPanel, BoxLayout.Y_AXIS));
+        artifactRowsJPanel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
         runStopJToggleButton.setText("stop");
 
         debugJCheckBox.setText("debug");
@@ -83,27 +101,26 @@ public class MainJDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jBossPathJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(debugJCheckBox)
+                        .addGap(18, 18, 18)
+                        .addComponent(runStopJToggleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(addArtifactJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(clearAllJButton))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jBossPathJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(debugJCheckBox))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(artifactJTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(deployJButton1)))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(removeJButton1)
-                            .addComponent(runStopJToggleButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(artifactJTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deployJButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(removeJButton1))
+                    .addComponent(artifactRowsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 560, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(37, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -115,8 +132,8 @@ public class MainJDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jBossPathJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(runStopJToggleButton)
-                    .addComponent(debugJCheckBox))
+                    .addComponent(debugJCheckBox)
+                    .addComponent(runStopJToggleButton))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addArtifactJButton)
@@ -124,8 +141,10 @@ public class MainJDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(artifactJTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(removeJButton1)
-                    .addComponent(deployJButton1))
+                    .addComponent(deployJButton1)
+                    .addComponent(removeJButton1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(artifactRowsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(358, Short.MAX_VALUE))
         );
 
@@ -178,12 +197,137 @@ public class MainJDialog extends javax.swing.JDialog {
                 : "Invalid JBoss EAP path. Use the root directory containing bin and modules.");
     }
 
+    public static boolean isValidArtifactPath(String artifactPath) {
+        if (artifactPath == null || artifactPath.isBlank()) {
+            return false;
+        }
+
+        Path artifactFile = Paths.get(artifactPath.trim());
+        if (!Files.isRegularFile(artifactFile)) {
+            return false;
+        }
+
+        String extension = java.nio.file.Path.of(artifactFile.toString()).getFileName().toString();
+        int lastDot = extension.lastIndexOf('.');
+        if (lastDot < 0 || lastDot == extension.length() - 1) {
+            return false;
+        }
+
+        String normalizedExtension = extension.substring(lastDot + 1).toLowerCase();
+        return ACCEPTED_ARTIFACT_EXTENSIONS.contains(normalizedExtension);
+    }
+
+    public static Path deployArtifactToDeployments(String jBossPath, String artifactPath) throws IOException {
+        if (!isValidJbossPath(jBossPath)) {
+            throw new IllegalArgumentException("Invalid JBoss path");
+        }
+        if (!isValidArtifactPath(artifactPath)) {
+            throw new IllegalArgumentException("Invalid artifact file");
+        }
+
+        Path source = Paths.get(artifactPath.trim());
+        Path deploymentDirectory = Paths.get(jBossPath.trim(), "standalone", "deployments");
+        Files.createDirectories(deploymentDirectory);
+
+        Path target = deploymentDirectory.resolve(source.getFileName().toString());
+        Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+        return target;
+    }
+
+    private void configureArtifactField(JTextField artifactField, JButton deployButton, JButton removeButton, boolean removable) {
+        artifactField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                validateArtifactField(artifactField);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                validateArtifactField(artifactField);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                validateArtifactField(artifactField);
+            }
+        });
+
+        deployButton.addActionListener(evt -> deployArtifact(artifactField));
+        removeButton.setEnabled(true);
+        if (removable) {
+            removeButton.addActionListener(evt -> removeArtifactRow((JPanel) removeButton.getParent()));
+        }
+        validateArtifactField(artifactField);
+    }
+
+    private void validateArtifactField(JTextField artifactField) {
+        boolean valid = isValidArtifactPath(artifactField.getText());
+        artifactField.setForeground(valid ? VALID_ARTIFACT_PATH_COLOR : INVALID_ARTIFACT_PATH_COLOR);
+        artifactField.setToolTipText(valid
+                ? "Valid artifact file"
+                : "Invalid artifact file. Accepted extensions: .war, .ear and .jar");
+    }
+
+    private void deployArtifact(JTextField artifactField) {
+        String artifactPath = artifactField.getText();
+        if (!isValidArtifactPath(artifactPath)) {
+            validateArtifactField(artifactField);
+            return;
+        }
+
+        if (!isValidJbossPath(jBossPathJTextField.getText())) {
+            validateJbossPath();
+            return;
+        }
+
+        try {
+            Path deployedArtifact = deployArtifactToDeployments(jBossPathJTextField.getText(), artifactPath);
+            artifactField.setText(deployedArtifact.toString());
+            validateArtifactField(artifactField);
+        } catch (IOException ex) {
+            artifactField.setForeground(INVALID_ARTIFACT_PATH_COLOR);
+            artifactField.setToolTipText("Unable to deploy artifact to the JBoss deployments folder.");
+            logger.log(java.util.logging.Level.SEVERE, "Unable to deploy artifact", ex);
+        }
+    }
+
+    private void removeArtifactRow(JPanel artifactRow) {
+        if (artifactRow == null) {
+            return;
+        }
+        artifactRowsJPanel.remove(artifactRow);
+        artifactRowsJPanel.revalidate();
+        artifactRowsJPanel.repaint();
+    }
+
+    private void addArtifactRow() {
+        JPanel artifactRow = new JPanel();
+        artifactRow.setLayout(new BoxLayout(artifactRow, BoxLayout.X_AXIS));
+        artifactRow.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
+        artifactRow.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+
+        JTextField newArtifactJTextField = new JTextField("C:/..", 45);
+        JButton newDeployJButton = new JButton("deploy");
+        JButton newRemoveJButton = new JButton("remove");
+
+        configureArtifactField(newArtifactJTextField, newDeployJButton, newRemoveJButton, true);
+        artifactRow.add(newArtifactJTextField);
+        artifactRow.add(javax.swing.Box.createHorizontalStrut(5));
+        artifactRow.add(newDeployJButton);
+        artifactRow.add(javax.swing.Box.createHorizontalStrut(5));
+        artifactRow.add(newRemoveJButton);
+
+        artifactRowsJPanel.add(artifactRow);
+        artifactRowsJPanel.revalidate();
+        artifactRowsJPanel.repaint();
+    }
+
     private void jBossPathJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBossPathJTextFieldActionPerformed
         validateJbossPath();
     }//GEN-LAST:event_jBossPathJTextFieldActionPerformed
 
     private void addArtifactJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addArtifactJButtonActionPerformed
-        // TODO add your handling code here:
+        addArtifactRow();
     }//GEN-LAST:event_addArtifactJButtonActionPerformed
 
     private void artifactJTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_artifactJTextField1ActionPerformed
@@ -230,6 +374,7 @@ public class MainJDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addArtifactJButton;
     private javax.swing.JTextField artifactJTextField1;
+    private javax.swing.JPanel artifactRowsJPanel;
     private javax.swing.JButton clearAllJButton;
     private javax.swing.JCheckBox debugJCheckBox;
     private javax.swing.JButton deployJButton1;

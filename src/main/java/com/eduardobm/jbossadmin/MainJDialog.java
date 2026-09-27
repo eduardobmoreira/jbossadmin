@@ -1,5 +1,12 @@
 package com.eduardobm.jbossadmin;
 
+import java.awt.Color;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
@@ -12,6 +19,8 @@ package com.eduardobm.jbossadmin;
 public class MainJDialog extends javax.swing.JDialog {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainJDialog.class.getName());
+    private static final Color VALID_JBOSS_PATH_COLOR = new Color(0, 153, 0);
+    private static final Color INVALID_JBOSS_PATH_COLOR = Color.RED;
 
     /**
      * Creates new form MainJDialog
@@ -19,6 +28,7 @@ public class MainJDialog extends javax.swing.JDialog {
     public MainJDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        configureJbossPathValidation();
     }
 
     /**
@@ -122,8 +132,54 @@ public class MainJDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void configureJbossPathValidation() {
+        jBossPathJTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                validateJbossPath();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                validateJbossPath();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                validateJbossPath();
+            }
+        });
+        validateJbossPath();
+    }
+
+    public static boolean isValidJbossPath(String jbossPath) {
+        if (jbossPath == null || jbossPath.isBlank()) {
+            return false;
+        }
+
+        Path basePath = Paths.get(jbossPath.trim());
+        if (!Files.exists(basePath) || !Files.isDirectory(basePath)) {
+            return false;
+        }
+
+        Path binPath = basePath.resolve("bin");
+        Path modulesPath = basePath.resolve("modules");
+
+        return Files.isDirectory(binPath) && Files.isDirectory(modulesPath);
+    }
+
+    private void validateJbossPath() {
+        String jbossPath = jBossPathJTextField.getText();
+        boolean valid = isValidJbossPath(jbossPath);
+
+        jBossPathJTextField.setForeground(valid ? VALID_JBOSS_PATH_COLOR : INVALID_JBOSS_PATH_COLOR);
+        jBossPathJTextField.setToolTipText(valid
+                ? "Valid JBoss EAP path"
+                : "Invalid JBoss EAP path. Use the root directory containing bin and modules.");
+    }
+
     private void jBossPathJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBossPathJTextFieldActionPerformed
-        // TODO add your handling code here:
+        validateJbossPath();
     }//GEN-LAST:event_jBossPathJTextFieldActionPerformed
 
     private void addArtifactJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addArtifactJButtonActionPerformed
